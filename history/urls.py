@@ -15,17 +15,20 @@ Including another URLconf
 """
 from django.urls import path
 from .views import *
-# from rest_framework_simplejwt.views import (
-#     TokenObtainPairView,
-#     TokenRefreshView,
-# )
+from rest_framework_simplejwt.views import (
+    TokenObtainPairView,
+    TokenRefreshView,
+)
 from . import views
 
 urlpatterns = [
     path('', UserApi.as_view(), name="create_user"),
-    path('update/', UpdateCurrentUserApi.as_view(), name="update_user"),
     path('myinfo/', GetCurrentUserInfoAPI.as_view(), name="get_user"),
     path("token/", CreateTokenView.as_view(), name="create_token"),
     path("monuments/", CreateMonuments.as_view(), name="create_monuments"),
+    path("monuments/<int:id>", GetMonumentsByIdApi.as_view(), name="create_monuments_by_id"),
+    path("random/", RandomMonumentsApi.as_view(), name="random_monuments"),
     path('logout/',UserLogoutApi.as_view(),name='logout'),
 ]
+
+# http://192.168.137.185:8000/

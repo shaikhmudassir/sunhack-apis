@@ -26,8 +26,7 @@ class UserApi(APIView):
         serializer = UserRegistrationSerializer(data=data)
         if serializer.is_valid():
             token = str(uuid.uuid4())
-            user = serializer.save(uuid = token)
-            key = ''.join([f"{random.randint(0, 9)}" for i in range(0, 6)])
+            user = serializer.save(uuid=token)
             user_data = UserSerializer(user)
             return Response(user_data.data, status=status.HTTP_201_CREATED)
             
@@ -37,19 +36,6 @@ class UserApi(APIView):
         obj = User.objects.get(id=id)
         self.check_object_permissions(self.request, obj)
         return obj
-
-class UpdateCurrentUserApi(APIView):
-    """Update the current user details but cannot modify email"""
-    def patch(self, request):
-
-        user = request.user
-        data = request.data
-        serializer = UserSerializer(user, data=data, partial=True)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_205_RESET_CONTENT)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
 
 class UserLogoutApi(APIView):
     def get(self, request):
@@ -73,6 +59,7 @@ class CreateTokenView(ObtainAuthToken):
     serializer_class = AuthTokenSerializer
     renderer_classes = api_settings.DEFAULT_RENDERER_CLASSES
 
+
 class GetMonumentsByIdApi(APIView):
     """Get details of any user by providing the id"""
     def get_object(self, request, id):
@@ -85,12 +72,27 @@ class GetMonumentsByIdApi(APIView):
         serializer = MonumentsSerializer(data)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+class RandomMonumentsApi(APIView):
+    """Get details of any user by providing the id"""
+    def get_object(self, request, id):
+        obj = Monuments.objects.get(id=id)
+        self.check_object_permissions(self.request, obj)
+        return obj
+
+    def get(self, request):
+        ids = list(Monuments.objects.all().values_list('pk', flat=True))
+        id = random.choice(ids)
+        data = self.get_object(request, id=id)
+        serializer = MonumentsSerializer(data)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
 class CreateMonuments(APIView):
 
     def post(self, request):
         data = request.data
-        serializer = MonumentsSerializer(data)
+        serializer = MonumentsSerializer(data=data)
         if serializer.is_valid():
-            serializer = serializer.save()
+            serializer.save()
+            serializer = MonumentsSerializer(data)
             return Response(serializer.data, status= status.HTTP_201_CREATED)
         return Response(serializer.errors, status= status.HTTP_400_BAD_REQUEST)
